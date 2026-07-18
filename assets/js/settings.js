@@ -27,10 +27,16 @@
               <button data-v="system">System</button>
             </div>
           </div>
-          <div class="field">
+          <div class="field" style="margin-bottom:14px">
             <label>Accent colour</label>
             <div class="swatches" id="accents">
               ${ACCENTS.map((c) => `<span class="swatch" data-c="${c}" style="background:${c}"></span>`).join("")}
+            </div>
+          </div>
+          <div class="field">
+            <label>Background</label>
+            <div class="swatches" id="backgrounds">
+              ${SS.Layout.BACKGROUNDS.map((b) => `<span class="swatch swatch--bg" data-bg="${b.id}" title="${b.name}" style="background-image:${b.light}"></span>`).join("")}
             </div>
           </div>
         </div>
@@ -112,6 +118,16 @@
       db.Settings.set({ avatar: sw.dataset.a }); markAvatar();
     });
     markAvatar();
+
+    // background gradient (applies live via Settings.on -> Layout.applyTheme)
+    const backgrounds = view.querySelector("#backgrounds");
+    const markBg = () => backgrounds.querySelectorAll(".swatch").forEach((sw) =>
+      sw.classList.toggle("on", sw.dataset.bg === db.Settings.get().background));
+    backgrounds.addEventListener("click", (e) => {
+      const sw = e.target.closest(".swatch"); if (!sw) return;
+      db.Settings.set({ background: sw.dataset.bg }); markBg();
+    });
+    markBg();
 
     // text/number fields save on change
     const bind = (id, key, parse) => view.querySelector("#" + id).addEventListener("change", (e) =>

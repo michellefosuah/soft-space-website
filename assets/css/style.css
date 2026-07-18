@@ -346,6 +346,7 @@ select option { color: #333; }
 .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
 .swatch { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
 .swatch.on { border-color: var(--text); box-shadow: 0 0 0 2px var(--surface-solid) inset; }
+.swatch--bg { width: 50px; height: 34px; border-radius: 10px; background-size: 220% 220%; background-position: center; }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }

@@ -13,6 +13,36 @@
   "use strict";
   const { db, escapeHtml } = window.SS;
 
+  /* Selectable animated background gradients. Each has a light + dark variant
+     so it stays coherent in either theme. `light` also drives the swatch preview. */
+  const BACKGROUNDS = [
+    { id: "aurora", name: "Aurora",
+      light: "linear-gradient(-45deg,#b8a0ea,#ff9ec6,#dccdeb,#bbeba6)",
+      dark: "linear-gradient(-45deg,#2a2340,#3d2a44,#26304a,#223a37)" },
+    { id: "blush", name: "Blush",
+      light: "linear-gradient(-45deg,#ffd6e8,#ffb3c6,#ffdde1,#fce1f0)",
+      dark: "linear-gradient(-45deg,#3a2230,#4a2436,#3a2233,#2e1e2a)" },
+    { id: "lavender", name: "Lavender",
+      light: "linear-gradient(-45deg,#d7c6f5,#b8a0ea,#e6dcff,#cabdf0)",
+      dark: "linear-gradient(-45deg,#2a2340,#332a52,#26224a,#2e2648)" },
+    { id: "mint", name: "Mint",
+      light: "linear-gradient(-45deg,#bdebc9,#a6e3c4,#d6f5e3,#c9f0d8)",
+      dark: "linear-gradient(-45deg,#1f3a30,#22443a,#203a34,#1e332e)" },
+    { id: "peach", name: "Peach",
+      light: "linear-gradient(-45deg,#ffd9b3,#ffc1a6,#ffe8d6,#ffd6c9)",
+      dark: "linear-gradient(-45deg,#3a2a22,#4a3226,#3a2e22,#2e241e)" },
+    { id: "ocean", name: "Ocean",
+      light: "linear-gradient(-45deg,#a6c7e7,#a0c0ea,#c6e0f5,#bdd6f0)",
+      dark: "linear-gradient(-45deg,#1f2a40,#223050,#20264a,#1e2a48)" },
+    { id: "sunset", name: "Sunset",
+      light: "linear-gradient(-45deg,#ffb3a6,#ffc1d6,#ffd6b3,#f5c6e0)",
+      dark: "linear-gradient(-45deg,#3a2230,#4a2a2e,#3a2e26,#2e1e2a)" },
+    { id: "cloud", name: "Cloud",
+      light: "linear-gradient(-45deg,#e8e4f0,#f0e8ee,#e4ecf0,#eee8f0)",
+      dark: "linear-gradient(-45deg,#26242e,#2a2632,#24262e,#282630)" },
+  ];
+  const bgById = (id) => BACKGROUNDS.find((b) => b.id === id) || BACKGROUNDS[0];
+
   const NAV = [
     { id: "dashboard", label: "Dashboard", icon: "ri-home-5-line", href: "index.html" },
     { id: "planner", label: "Planner", icon: "ri-calendar-line", href: "planner.html" },
@@ -34,8 +64,17 @@
     }
     root.setAttribute("data-theme", theme);
     root.style.setProperty("--accent", s.accent);
-    // Mirror the raw preference so the pre-paint <head> script can avoid a flash.
-    try { localStorage.setItem("ss:boot", JSON.stringify({ theme: s.theme, accent: s.accent })); } catch (_) {}
+
+    // Hero background gradient (theme-aware).
+    const bg = bgById(s.background);
+    root.style.setProperty("--grad", theme === "dark" ? bg.dark : bg.light);
+
+    // Mirror preferences so the pre-paint <head> script can avoid a flash.
+    try {
+      localStorage.setItem("ss:boot", JSON.stringify({
+        theme: s.theme, accent: s.accent, gradLight: bg.light, gradDark: bg.dark,
+      }));
+    } catch (_) {}
   }
 
   function greeting(name) {
@@ -132,5 +171,5 @@
   // Apply theme ASAP (before mount) to reduce flash.
   applyTheme();
 
-  window.SS.Layout = { mount, applyTheme, greeting, NAV };
+  window.SS.Layout = { mount, applyTheme, greeting, NAV, BACKGROUNDS };
 })();

@@ -224,6 +224,7 @@
     avatar: "🌸",
     theme: "system",        // light | dark | system
     accent: "#D8A7B1",
+    background: "aurora",   // id from Layout.BACKGROUNDS (the animated hero gradient)
     currency: "₵",
     focusMinutes: 25,
     breakMinutes: 5,
