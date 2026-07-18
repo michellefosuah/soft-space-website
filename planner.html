@@ -1,127 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soft Space Planner</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&family=Parisienne&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soft Space · Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&family=Parisienne&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script>
+    (function () { try { var s = JSON.parse(localStorage.getItem("ss:settings") || "{}"); var t = s.theme || "system"; if (t === "system") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; document.documentElement.setAttribute("data-theme", t); if (s.accent) document.documentElement.style.setProperty("--accent", s.accent); } catch (e) {} })();
+  </script>
 </head>
 <body>
-<div class="background-gradient"></div>
-<div class="sparkles"></div>
-<div class="container">
-    <aside class="sidebar">
-        <div class="logo">
-            <h1>Soft Space</h1>
-            <p>your peaceful corner</p>
-        </div>
-        <nav>
-              <ul>    
-
-    <li>
-        <a href="index.html">
-            <i class="ri-home-5-line"></i>
-            <span>Dashboard</span>
-        </a>
-    </li>
-
-    <li class="active">
-        <a href="planner.html">
-            <i class="ri-calendar-line"></i>
-            <span>Planner</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="journal.html">
-            <i class="ri-book-open-line"></i>
-            <span>Journal</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="studyhub.html">
-            <i class="ri-book-2-line"></i>
-            <span>Study Hub</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="habits.html">
-            <i class="ri-heart-line"></i>
-            <span>Habits</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="goals.html">
-            <i class="ri-flag-line"></i>
-            <span>Goals</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="finance.html">
-            <i class="ri-wallet-3-line"></i>
-            <span>Finance</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="memorygarden.html">
-            <i class="ri-flower-line"></i>
-            <span>Memory Garden</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="larmoraé.html ">
-            <i class="ri-vip-crown-line"></i>
-            <span>Larmoraé</span>
-        </a>
-    </li>
-
-    <li>
-        <a href="settings.html">
-            <i class="ri-settings-3-line"></i>
-            <span>Settings</span>
-        </a>
-    </li>
-            </ul>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <header>
-            <div>
-                <h2 id="greeting">Planner</h2>
-                <p id="date"></p>
-            </div>
-            <div class="profile">
-                <div class="avatar">🌸</div>
-            </div>
-        </header>
-        <section class="hero glass">
-            <h1>Plan your day.</h1>
-            <p>Use this page to create and manage your planner items. Results appear automatically back on the dashboard.</p>
-        </section>
-        <section class="dashboard">
-            <div class="card glass planner-card">
-                <h3>Daily Planning</h3>
-                <div class="planner-input">
-                    <input type="text" id="plannerInput" placeholder="Add a plan item...">
-                    <button id="addPlannerBtn">+</button>
-                </div>
-                <ul id="plannerList"></ul>
-                
-            </div>
-        </section>
-    </main>
-</div>
-<script src="script.js"></script>
+  <div id="app"></div>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/db.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/planner.js"></script>
 </body>
 </html>

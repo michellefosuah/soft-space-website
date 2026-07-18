@@ -1,0 +1,6 @@
+# Local tooling / dependencies (the app itself is dependency-free static files)
+node_modules/
+package.json
+package-lock.json
+*.log
+.DS_Store
