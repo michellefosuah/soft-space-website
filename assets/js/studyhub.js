@@ -82,6 +82,8 @@
           <p class="muted" id="cycleHint" style="margin-top:14px;font-size:13px"></p>
         </div>
 
+        <div class="card" id="musicCard"></div>
+
         <div class="card span-2">
           <h3>✅ Study checklist</h3>
           <div class="add-row">
@@ -92,6 +94,9 @@
           <ul class="list" id="stList"></ul>
         </div>
       </section>`;
+
+    // Focus music panel (offline sounds + streaming embeds).
+    if (window.SS.Music) SS.Music.render(panel.querySelector("#musicCard"));
 
     const S = db.Settings.get();
     let mode = "focus";               // focus | break | long
@@ -148,6 +153,8 @@
       if (running) return;
       running = true;
       panel.querySelector("#startPause").textContent = "Pause";
+      // Optionally fade in the selected focus sound alongside the timer.
+      if (window.SS.Music && !SS.Music.Sound.isPlaying()) SS.Music.startWithTimer();
       ticker = setInterval(tick, 1000);
     }
     function pause() {
@@ -157,7 +164,10 @@
     }
 
     panel.querySelector("#startPause").addEventListener("click", () => (running ? pause() : start()));
-    panel.querySelector("#reset").addEventListener("click", () => { pause(); setMode("focus"); panel.querySelector("#startPause").textContent = "Start"; });
+    panel.querySelector("#reset").addEventListener("click", () => {
+      pause(); setMode("focus"); panel.querySelector("#startPause").textContent = "Start";
+      if (window.SS.Music) SS.Music.stop();
+    });
 
     function notify(title, body) {
       UI.toast(title, "success");

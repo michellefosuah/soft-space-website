@@ -34,6 +34,8 @@
     }
     root.setAttribute("data-theme", theme);
     root.style.setProperty("--accent", s.accent);
+    // Mirror the raw preference so the pre-paint <head> script can avoid a flash.
+    try { localStorage.setItem("ss:boot", JSON.stringify({ theme: s.theme, accent: s.accent })); } catch (_) {}
   }
 
   function greeting(name) {
@@ -44,10 +46,14 @@
   }
 
   function mount({ page, title, subtitle, greet } = {}) {
+    // Gate the whole app: bounce to the login screen if not signed in.
+    if (window.SS.Auth && !SS.Auth.guard()) return null;
+
     applyTheme();
     const s = db.Settings.get();
+    const user = (window.SS.Auth && SS.Auth.currentUser()) || null;
     const host = document.getElementById("app");
-    if (!host) return;
+    if (!host) return null;
 
     const navHtml = NAV.map((n) => `
       <li class="${n.id === page ? "active" : ""}">
@@ -70,6 +76,16 @@
             <p>your peaceful corner</p>
           </div>
           <nav><ul>${navHtml}</ul></nav>
+          <div class="sidebar-foot">
+            <div class="side-user">
+              <span class="avatar">${escapeHtml(s.avatar)}</span>
+              <div class="side-user__meta">
+                <strong>${escapeHtml(user ? user.name : s.name)}</strong>
+                <small class="muted">${escapeHtml(user ? user.email : "")}</small>
+              </div>
+            </div>
+            <button class="btn btn--ghost btn--sm btn--block" id="logoutBtn"><i class="ri-logout-box-line"></i> Log out</button>
+          </div>
         </aside>
 
         <main class="main">
@@ -95,6 +111,13 @@
     toggle.addEventListener("click", openNav);
     scrim.addEventListener("click", closeNav);
     sidebar.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeNav));
+
+    // Log out -> back to the auth screen.
+    const logoutBtn = host.querySelector("#logoutBtn");
+    if (logoutBtn) logoutBtn.addEventListener("click", async () => {
+      await SS.Auth.logOut();
+      location.replace("auth.html");
+    });
 
     // Keep theme reactive to system + settings changes
     db.Settings.on(applyTheme);

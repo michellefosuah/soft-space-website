@@ -15,6 +15,19 @@
 
   const NS = "ss:"; // localStorage namespace, keeps our keys tidy
 
+  /* ---------- account scoping ----------
+     Data is partitioned per signed-in user so accounts don't share tasks,
+     journals, etc. Auth bookkeeping (session, accounts) stays unscoped.
+       logged in  -> ss:u:<uid>:<key>
+       logged out -> ss:<key>   (used by the auth screen only)          */
+  function activeUid() {
+    return localStorage.getItem("ss:session") || null;
+  }
+  function scoped(key) {
+    const uid = activeUid();
+    return uid ? `ss:u:${uid}:${key}` : NS + key;
+  }
+
   /* ---------- utilities ---------- */
 
   // Reasonably-unique id. crypto.randomUUID isn't available everywhere.
@@ -42,7 +55,7 @@
   const Store = {
     get(key, fallback) {
       try {
-        const raw = localStorage.getItem(NS + key);
+        const raw = localStorage.getItem(scoped(key));
         return raw === null ? fallback : JSON.parse(raw);
       } catch (e) {
         console.warn("Store.get failed for", key, e);
@@ -52,7 +65,7 @@
 
     set(key, value) {
       try {
-        localStorage.setItem(NS + key, JSON.stringify(value));
+        localStorage.setItem(scoped(key), JSON.stringify(value));
       } catch (e) {
         // Most common cause: quota exceeded (large library files, etc.)
         console.error("Store.set failed for", key, e);
@@ -64,7 +77,7 @@
     },
 
     remove(key) {
-      localStorage.removeItem(NS + key);
+      localStorage.removeItem(scoped(key));
       emit(key, undefined);
     },
 
@@ -82,7 +95,12 @@
   // Reflect changes made in other tabs/pages into this page's widgets.
   window.addEventListener("storage", (e) => {
     if (!e.key || !e.key.startsWith(NS)) return;
-    const key = e.key.slice(NS.length);
+    // Map the raw storage key back to its logical (unscoped) name.
+    const uid = activeUid();
+    let key;
+    if (uid && e.key.startsWith(`ss:u:${uid}:`)) key = e.key.slice(`ss:u:${uid}:`.length);
+    else if (e.key.startsWith("ss:u:")) return; // belongs to a different account
+    else key = e.key.slice(NS.length);
     try {
       emit(key, e.newValue === null ? undefined : JSON.parse(e.newValue));
     } catch (_) {}
