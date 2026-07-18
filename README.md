@@ -12,10 +12,27 @@ Open `index.html` in a browser, or serve the folder statically:
 python3 -m http.server 8000   # then visit http://localhost:8000
 ```
 
+## Accounts
+
+The app is gated behind sign-up / log-in (`auth.html`). Accounts and the active
+session are stored in the browser, and **each account's data is namespaced
+separately** (`ss:u:<uid>:…`), so different users on the same device don't share
+tasks, journals, etc.
+
+> ⚠️ This is a **front-end gate, not real security** — data lives in the browser,
+> can be inspected/bypassed with dev tools, and doesn't sync across devices. To
+> upgrade to real auth (Firebase, Supabase, your own API), set `SS.Auth.provider`
+> with `signUp` / `logIn` / `logOut` methods; the rest of the app is unchanged.
+
 ## Features
 
 - **Dashboard** — live overview: greeting, daily quote, planner preview, today's
   focus, weather, habit streak, journal preview, and a composite progress meter.
+- **Focus Music** (in Study Hub) — offline ambient sounds (rain / brown / pink /
+  white noise via Web Audio, no files) that can auto-start with the Pomodoro,
+  **plus** paste-a-link embedded players for Spotify, YouTube, Apple Music and
+  SoundCloud (no login or Premium needed). A `SS.Music.provider` seam is reserved
+  for a future full OAuth/SDK integration.
 - **Planner** — task CRUD with priorities, due dates, notes, filters; syncs to the dashboard.
 - **Journal** — daily diary with auto-saving drafts and a browsable history.
 - **Study Hub** — the core:

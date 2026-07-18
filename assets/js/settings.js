@@ -141,12 +141,16 @@
       UI.toast(next ? "Notifications on" : "Notifications off", "info");
     });
 
-    // export / import / reset
+    // export / import / reset — scoped to the signed-in account.
+    // Backups use logical (unscoped) keys so they can restore into any account.
+    const uid = (SS.Auth.currentUser() || {}).uid || "";
+    const PREFIX = `ss:u:${uid}:`;
+
     view.querySelector("#exportBtn").addEventListener("click", () => {
       const dump = {};
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k.startsWith("ss:")) dump[k] = localStorage.getItem(k);
+        if (k.startsWith(PREFIX)) dump[k.slice(PREFIX.length)] = localStorage.getItem(k);
       }
       const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
@@ -162,15 +166,16 @@
       const file = importFile.files[0]; if (!file) return;
       try {
         const data = JSON.parse(await file.text());
-        Object.keys(data).forEach((k) => { if (k.startsWith("ss:")) localStorage.setItem(k, data[k]); });
+        // Re-scope logical keys into the current account.
+        Object.keys(data).forEach((k) => localStorage.setItem(PREFIX + k, data[k]));
         UI.toast("Backup restored", "success");
         setTimeout(() => location.reload(), 700);
       } catch (e) { UI.toast("Couldn't read that file", "error"); }
     });
 
     view.querySelector("#resetBtn").addEventListener("click", async () => {
-      if (!(await UI.confirm("This erases all your Soft Space data. Continue?", { danger: true }))) return;
-      Object.keys(localStorage).filter((k) => k.startsWith("ss:")).forEach((k) => localStorage.removeItem(k));
+      if (!(await UI.confirm("This erases this account's Soft Space data. Continue?", { danger: true }))) return;
+      Object.keys(localStorage).filter((k) => k.startsWith(PREFIX)).forEach((k) => localStorage.removeItem(k));
       UI.toast("All data cleared", "info");
       setTimeout(() => location.reload(), 700);
     });
