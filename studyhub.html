@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Hub - Soft Space</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background-gradient"></div>
+<div class="sparkles"></div>
+
+<div class="container">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo">
+        <h1>Soft Space</h1>
+        <p>your peaceful corner</p>
+    </div>
+
+    <nav>  
+    <ul>
+        <li><a href="index.html"><i class="ri-home-5-line"></i><span>Dashboard</span></a></li>
+        <li><a href="planner.html"><i class="ri-calendar-line"></i><span>Planner</span></a></li>
+        <li><a href="journal.html"><i class="ri-book-open-line"></i><span>Journal</span></a></li>
+        <li class="active"><a href="studyhub.html"><i class="ri-book-2-line"></i><span>Study Hub</span></a></li>
+        <li><a href="habits.html"><i class="ri-heart-line"></i><span>Habits</span></a></li>
+        <li><a href="goals.html"><i class="ri-flag-line"></i><span>Goals</span></a></li>
+        <li><a href="finance.html"><i class="ri-wallet-3-line"></i><span>Finance</span></a></li>
+        <li><a href="memorygarden.html"><i class="ri-flower-line"></i><span>Memory Garden</span></a></li>
+        <li><a href="larmoraé.html"><i class="ri-vip-crown-line"></i><span>Larmoraé</span></a></li>
+        <li><a href="settings.html"><i class="ri-settings-3-line"></i><span>Settings</span></a></li>
+    
+        </ul>
+    </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<header>
+    <h2>Study Hub</h2>
+</header>
+
+<section class="dashboard">
+
+
+<!-- STUDY INPUT -->
+<div class="card glass">
+    <h3>Your Study Plan</h3>
+
+    <div class="planner-input">
+        <input id="studyInput" placeholder="Add study task...">
+        <select id="studyPriority">
+            <option value="A">A (Important)</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+        <button id="addStudyBtn">+</button>
+    </div>
+
+    <ul id="studyList"></ul>
+</div>
+
+<!-- POMODORO -->
+<div class="card glass pomodoro-card">
+
+    <h3>Pomodoro Timer</h3>
+
+    <div class="timer-container">
+
+        <svg class="progress-ring" width="230" height="230">
+
+            <circle
+                class="progress-bg"
+                cx="115"
+                cy="115"
+                r="95">
+            </circle>
+
+            <circle
+                id="progressCircle"
+                class="progress-bar"
+                cx="115"
+                cy="115"
+                r="95">
+            </circle>
+
+        </svg>
+
+        <div class="timer-content">
+
+            <h1 id="timer">30:00</h1>
+
+            <p id="sessionType">
+                🍅 Focus Session
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="pomodoro-buttons">
+
+        <button id="startBtn">Start</button>
+
+        <button id="pauseBtn">Pause</button>
+
+        <button id="resetBtn">Reset</button>
+
+    </div>
+
+</div>
+
+
+
+<div class="card glass">
+    <h3>📊 Study Stats</h3>
+
+    <p>🍅 Sessions Today: <span id="sessionCount">0</span></p>
+    <p>⏱ Study Time: <span id="studyTime">0m</span></p>
+</div>
+
+<!-- =========================
+     STUDY LIBRARY
+========================= -->
+
+<div class="card glass">
+
+    <h3>📚 Study Library</h3>
+
+    <div class="library-upload">
+
+        <label>Subject</label>
+
+        <select id="librarySubject">
+            <option>Physics</option>
+            <option>Mathematics</option>
+            <option>Programming</option>
+            <option>Chemistry</option>
+            <option>Biology</option>
+            <option>Economics</option>
+            <option>Other</option>
+        </select>
+
+        <label>Choose File</label>
+
+        <input
+            type="file"
+            id="libraryFile"
+            accept=".pdf,.ppt,.pptx,.doc,.docx">
+
+        <label>Description (Optional)</label>
+
+        <textarea
+            id="libraryDescription"
+            placeholder="Example: Electromagnetic Theory Week 4 Notes"></textarea>
+
+        <button id="uploadLibraryBtn">
+            <i class="ri-upload-cloud-2-line"></i>
+            Upload Resource
+        </button>
+
+    </div>
+
+</div>
+<!-- =========================
+     TIMETABLE SECTION
+========================= -->
+
+<div class="timetable-wrapper">
+
+    <h2>📅 My Timetable (8AM - 7PM)</h2>
+
+    <div id="timetable" class="timetable-grid">
+        <!-- JS will inject time slots here -->
+    </div>
+
+</div>
+<div class="card glass">
+
+    <h3>📂 My Library</h3>
+
+    <div class="library-search">
+    <input id="librarySearch" placeholder="Search your library..." />
+</div>
+
+    <div id="libraryList"></div>
+    
+
+</div>
+</section>
+
+</main>
+</div>
+
+<script src="studyhub.js"></script>
+</body>
+</html>
