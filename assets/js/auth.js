@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · AUTH (client-side accounts)
+   TODAYLY · AUTH (client-side accounts)
    Gates the app behind sign-up / log-in. Accounts and the active session
    live in localStorage; each account's app data is namespaced separately
    by core.js (ss:u:<uid>:…), so users don't share data on a shared device.

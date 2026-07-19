@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · HABITS
+   TODAYLY · HABITS
    Create habits, tick them per day, see streaks + weekly/monthly rates.
    Completing all habits for the day feeds the dashboard streak.
    ========================================================= */

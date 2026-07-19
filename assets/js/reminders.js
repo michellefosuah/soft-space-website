@@ -1,6 +1,6 @@
 /* =========================================================
-   SOFT SPACE · REMINDERS
-   An in-app reminder scheduler. While any Soft Space tab is open it checks
+   TODAYLY · REMINDERS
+   An in-app reminder scheduler. While any Todayly tab is open it checks
    every minute for things that are due and surfaces them as a browser
    Notification (when granted) + an in-app toast.
 

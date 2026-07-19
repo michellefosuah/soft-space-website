@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · CORE
+   TODAYLY · CORE
    Shared primitives used by every page:
    - Store   : namespaced localStorage with change events
    - FileDB  : IndexedDB blob storage (uploaded files survive reload)

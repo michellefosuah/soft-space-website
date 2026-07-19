@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · GOALS
+   TODAYLY · GOALS
    Create goals with a target, track progress toward it, set a deadline,
    and mark complete. Progress is editable with +/- steppers.
    ========================================================= */

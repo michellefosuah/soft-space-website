@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · DASHBOARD
+   TODAYLY · DASHBOARD
    The central overview. Pulls live data from every module and re-renders
    the relevant card whenever its underlying data changes.
    ========================================================= */
