@@ -45,8 +45,15 @@ tasks, journals, etc.
 - **Habits** — streaks, weekly/monthly completion, 7-day grid.
 - **Goals** — progress toward a target with deadlines.
 - **Finance** — income/expenses, budget & savings, category donut, insights.
-- **Settings** — light/dark/system theme, accent colour, profile, timer & currency
-  preferences, notifications, weather location, plus data export/import/reset.
+- **Reminders** — in-app scheduler that nudges you about due tasks, exam
+  countdowns (7/3/1 days out), goal deadlines, class start times, and an
+  unfinished-habits daily check-in. Browser Notification (when granted) + an
+  in-app toast, deduped so each fires once. Categories toggle in Settings.
+  *Client-side — only runs while a Soft Space tab is open; true background/push
+  reminders would need a backend + Web Push.*
+- **Settings** — light/dark/system theme, accent colour, selectable hero
+  background, profile, timer & currency preferences, reminder categories,
+  notifications, weather location, plus data export/import/reset.
 
 ## Architecture
 

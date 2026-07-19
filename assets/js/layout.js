@@ -158,6 +158,9 @@
       location.replace("auth.html");
     });
 
+    // Start the in-app reminder scheduler (fires while any page is open).
+    if (window.SS.Reminders) SS.Reminders.init();
+
     // Keep theme reactive to system + settings changes
     db.Settings.on(applyTheme);
     if (window.matchMedia) {

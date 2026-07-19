@@ -70,6 +70,21 @@
         </div>
 
         <div class="card">
+          <h3>🔔 Reminders</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:12px">Fire while Soft Space is open. Needs notifications on above.</p>
+          <div class="stack" id="reminderToggles">
+            ${[["tasks", "Task due dates"], ["exams", "Exam countdowns"], ["goals", "Goal deadlines"], ["timetable", "Class times"], ["habits", "Daily habit nudge"]]
+              .map(([k, label]) => `
+              <label class="between" style="font-weight:400"><span>${label}</span>
+                <input type="checkbox" data-r="${k}" style="width:auto" ${s.reminders[k] ? "checked" : ""} /></label>`).join("")}
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label>Daily habit nudge time</label>
+            <input id="dailyTime" type="time" value="${s.reminders.dailyTime}" style="max-width:150px" />
+          </div>
+        </div>
+
+        <div class="card">
           <h3>🌤 Weather location</h3>
           <div class="field" style="margin-bottom:12px"><label>City name</label><input id="locName" value="${escapeHtml(s.location.name)}" /></div>
           <div class="form-row">
@@ -144,6 +159,15 @@
       lon: +view.querySelector("#lon").value || -1.6244,
     }});
     ["locName", "lat", "lon"].forEach((id) => view.querySelector("#" + id).addEventListener("change", saveLoc));
+
+    // reminder category toggles + daily nudge time
+    view.querySelector("#reminderToggles").addEventListener("change", (e) => {
+      const cb = e.target.closest("[data-r]"); if (!cb) return;
+      db.Settings.set({ reminders: Object.assign({}, db.Settings.get().reminders, { [cb.dataset.r]: cb.checked }) });
+    });
+    view.querySelector("#dailyTime").addEventListener("change", (e) => {
+      db.Settings.set({ reminders: Object.assign({}, db.Settings.get().reminders, { dailyTime: e.target.value || "18:00" }) });
+    });
 
     // notifications toggle (also asks for browser permission)
     view.querySelector("#notifBtn").addEventListener("click", async (e) => {

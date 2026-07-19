@@ -7,7 +7,7 @@
    Bump CACHE when shipping changes so old assets are cleared.
    ========================================================= */
 
-const CACHE = "softspace-v1";
+const CACHE = "softspace-v2";
 const SHELL = [
   "./",
   "index.html", "auth.html", "planner.html", "journal.html", "studyhub.html",
@@ -15,7 +15,7 @@ const SHELL = [
   "manifest.webmanifest",
   "assets/css/style.css",
   "assets/js/core.js", "assets/js/db.js", "assets/js/ai.js", "assets/js/auth.js",
-  "assets/js/music.js", "assets/js/layout.js", "assets/js/dashboard.js",
+  "assets/js/music.js", "assets/js/reminders.js", "assets/js/layout.js", "assets/js/dashboard.js",
   "assets/js/planner.js", "assets/js/journal.js", "assets/js/studyhub.js",
   "assets/js/habits.js", "assets/js/goals.js", "assets/js/finance.js", "assets/js/settings.js",
   "assets/icons/icon-192.png", "assets/icons/icon-512.png",
