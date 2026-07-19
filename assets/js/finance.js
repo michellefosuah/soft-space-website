@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · FINANCE
+   TODAYLY · FINANCE
    Track income + expenses, budget vs. spend, category breakdown (donut),
    a savings goal, and a spending summary with insights.
    ========================================================= */

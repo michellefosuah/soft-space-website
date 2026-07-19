@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · SETTINGS
+   TODAYLY · SETTINGS
    Theme (light/dark/system), accent colour, profile, currency, timer
    preferences, notifications, location for weather, and data reset.
    Changes apply instantly (Settings.on drives Layout re-theme).
@@ -12,7 +12,7 @@
   const AVATARS = ["🌸", "🌷", "🌻", "🦋", "🌙", "⭐", "🍀", "🐣"];
 
   document.addEventListener("DOMContentLoaded", () => {
-    const view = SS.Layout.mount({ page: "settings", title: "Settings", subtitle: "Make Soft Space yours." });
+    const view = SS.Layout.mount({ page: "settings", title: "Settings", subtitle: "Make Todayly yours." });
     const s = db.Settings.get();
 
     view.innerHTML = `
@@ -71,7 +71,7 @@
 
         <div class="card">
           <h3>🔔 Reminders</h3>
-          <p class="muted" style="font-size:12px;margin-bottom:12px">Fire while Soft Space is open. Needs notifications on above.</p>
+          <p class="muted" style="font-size:12px;margin-bottom:12px">Fire while Todayly is open. Needs notifications on above.</p>
           <div class="stack" id="reminderToggles">
             ${[["tasks", "Task due dates"], ["exams", "Exam countdowns"], ["goals", "Goal deadlines"], ["timetable", "Class times"], ["habits", "Daily habit nudge"]]
               .map(([k, label]) => `
@@ -231,7 +231,7 @@
       const blob = new Blob([JSON.stringify(dump, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "softspace-backup.json";
+      a.download = "todayly-backup.json";
       a.click();
       URL.revokeObjectURL(a.href);
     });
@@ -250,7 +250,7 @@
     });
 
     view.querySelector("#resetBtn").addEventListener("click", async () => {
-      if (!(await UI.confirm("This erases this account's Soft Space data. Continue?", { danger: true }))) return;
+      if (!(await UI.confirm("This erases this account's Todayly data. Continue?", { danger: true }))) return;
       Object.keys(localStorage).filter((k) => k.startsWith(PREFIX)).forEach((k) => localStorage.removeItem(k));
       UI.toast("All data cleared", "info");
       setTimeout(() => location.reload(), 700);

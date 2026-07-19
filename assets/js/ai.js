@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · AI ENGINE (pluggable)
+   TODAYLY · AI ENGINE (pluggable)
    Everything AI-flavoured routes through SS.AI. Today it runs a local,
    deterministic heuristic so the app works fully offline. To connect a
    real model later, set SS.AI.provider to an async function — the rest of

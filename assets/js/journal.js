@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · JOURNAL
+   TODAYLY · JOURNAL
    A digital diary: write today's entry (auto-saved as you type), browse
    past entries, open any day to edit, and delete entries.
    ========================================================= */

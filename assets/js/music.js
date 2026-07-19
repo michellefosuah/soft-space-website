@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · MUSIC
+   TODAYLY · MUSIC
    Two independent ways to have sound while you study:
 
    1. Focus sounds — generated live with the Web Audio API (white / pink /

@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · STUDY HUB (core feature)
+   TODAYLY · STUDY HUB (core feature)
    Tabs: Focus · Plan · Stats · Library · Learn
      Focus   – Pomodoro timer (settings-driven), study checklist
      Plan    – Subjects, Timetable, Exams + countdowns, AI Study Planner

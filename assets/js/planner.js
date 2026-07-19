@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · PLANNER
+   TODAYLY · PLANNER
    Full task CRUD: create / edit / delete, priority, due date, complete.
    Tasks are shared with the dashboard preview automatically (same store).
    ========================================================= */

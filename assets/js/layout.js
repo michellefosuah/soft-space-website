@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · LAYOUT
+   TODAYLY · LAYOUT
    Renders the shared chrome (sidebar + topbar) into every page so nav is
    defined once, stays consistent, and can't drift out of sync. Also boots
    the theme/accent from settings and wires the mobile nav toggle.
@@ -111,7 +111,7 @@
       <div class="container">
         <aside class="sidebar" id="sidebar">
           <div class="logo">
-            <h1>Soft Space</h1>
+            <h1>Todayly</h1>
             <p>your peaceful corner</p>
           </div>
           <nav><ul>${navHtml}</ul></nav>

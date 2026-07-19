@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · SERVICE WORKER
+   TODAYLY · SERVICE WORKER
    Makes the app installable and available offline. Uses a
    stale-while-revalidate strategy for same-origin GETs: serve from cache
    instantly, then refresh the cache in the background. External CDN assets
@@ -7,7 +7,7 @@
    Bump CACHE when shipping changes so old assets are cleared.
    ========================================================= */
 
-const CACHE = "softspace-v2";
+const CACHE = "todayly-v1";
 const SHELL = [
   "./",
   "index.html", "auth.html", "planner.html", "journal.html", "studyhub.html",

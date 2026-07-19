@@ -1,4 +1,4 @@
-# 🌸 Soft Space
+# 🌸 Todayly
 
 A calm, all-in-one student productivity companion — planner, journal, study hub,
 habits, goals, and finance — in one soft, minimal interface. Pure static
@@ -49,7 +49,7 @@ tasks, journals, etc.
   countdowns (7/3/1 days out), goal deadlines, class start times, and an
   unfinished-habits daily check-in. Browser Notification (when granted) + an
   in-app toast, deduped so each fires once. Categories toggle in Settings.
-  *Client-side — only runs while a Soft Space tab is open; true background/push
+  *Client-side — only runs while a Todayly tab is open; true background/push
   reminders would need a backend + Web Push.*
 - **Settings** — light/dark/system theme, accent colour, selectable hero
   background, profile, timer & currency preferences, reminder categories,

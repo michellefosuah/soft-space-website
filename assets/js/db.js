@@ -1,5 +1,5 @@
 /* =========================================================
-   SOFT SPACE · DATA MODEL
+   TODAYLY · DATA MODEL
    Thin repositories over Store. Every feature reads/writes here so the
    dashboard (and any other page) can pull consistent, live data.
    Each collection repo exposes: all / get / add / update / remove.
@@ -231,7 +231,7 @@
     longBreakMinutes: 15,
     notifications: true,
     location: { name: "Kumasi", lat: 6.6885, lon: -1.6244 },
-    // In-app reminders (checked while a Soft Space tab is open).
+    // In-app reminders (checked while a Todayly tab is open).
     reminders: {
       tasks: true,        // planner tasks due today / overdue
       exams: true,        // exams at 7/3/1 days out and on the day
