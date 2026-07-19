@@ -27,10 +27,16 @@
               <button data-v="system">System</button>
             </div>
           </div>
-          <div class="field">
+          <div class="field" style="margin-bottom:14px">
             <label>Accent colour</label>
             <div class="swatches" id="accents">
               ${ACCENTS.map((c) => `<span class="swatch" data-c="${c}" style="background:${c}"></span>`).join("")}
+            </div>
+          </div>
+          <div class="field">
+            <label>Background</label>
+            <div class="swatches" id="backgrounds">
+              ${SS.Layout.BACKGROUNDS.map((b) => `<span class="swatch swatch--bg" data-bg="${b.id}" title="${b.name}" style="background-image:${b.light}"></span>`).join("")}
             </div>
           </div>
         </div>
@@ -61,6 +67,36 @@
             <div><strong>Notifications</strong><div class="muted" style="font-size:12px">Reminders & session alerts</div></div>
             <label class="seg"><button id="notifBtn">${s.notifications ? "On" : "Off"}</button></label>
           </div>
+        </div>
+
+        <div class="card">
+          <h3>🔔 Reminders</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:12px">Fire while Soft Space is open. Needs notifications on above.</p>
+          <div class="stack" id="reminderToggles">
+            ${[["tasks", "Task due dates"], ["exams", "Exam countdowns"], ["goals", "Goal deadlines"], ["timetable", "Class times"], ["habits", "Daily habit nudge"]]
+              .map(([k, label]) => `
+              <label class="between" style="font-weight:400"><span>${label}</span>
+                <input type="checkbox" data-r="${k}" style="width:auto" ${s.reminders[k] ? "checked" : ""} /></label>`).join("")}
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label>Daily habit nudge time</label>
+            <input id="dailyTime" type="time" value="${s.reminders.dailyTime}" style="max-width:150px" />
+          </div>
+        </div>
+
+        <div class="card span-2">
+          <h3>🤖 AI (bring your own key)</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:12px">Powers <strong>content-aware</strong> quizzes & flashcards generated from your uploaded study files. Off by default — the app works fully offline with built-in templates.</p>
+          <div class="between" style="margin-bottom:12px">
+            <div><strong>Enable AI features</strong><div class="muted" style="font-size:12px">Calls Claude from your browser</div></div>
+            <label class="seg"><button id="aiToggle">Off</button></label>
+          </div>
+          <div class="field" style="margin-bottom:12px"><label>Anthropic API key</label><input id="aiKey" type="password" placeholder="sk-ant-…" autocomplete="off" /></div>
+          <div class="form-row">
+            <div class="field"><label>Model</label><input id="aiModel" placeholder="claude-opus-4-8" /></div>
+            <div class="field"><label>Proxy endpoint (optional)</label><input id="aiEndpoint" placeholder="https://your-proxy…" /></div>
+          </div>
+          <p class="muted" style="font-size:11px;margin-top:12px;line-height:1.6">⚠️ Your key is stored in this browser and sent directly to Anthropic. Anyone who can use this device/browser can read it — don't enable this on a shared computer. To avoid exposing a raw key, point “Proxy endpoint” at your own server that injects the key instead.</p>
         </div>
 
         <div class="card">
@@ -113,6 +149,16 @@
     });
     markAvatar();
 
+    // background gradient (applies live via Settings.on -> Layout.applyTheme)
+    const backgrounds = view.querySelector("#backgrounds");
+    const markBg = () => backgrounds.querySelectorAll(".swatch").forEach((sw) =>
+      sw.classList.toggle("on", sw.dataset.bg === db.Settings.get().background));
+    backgrounds.addEventListener("click", (e) => {
+      const sw = e.target.closest(".swatch"); if (!sw) return;
+      db.Settings.set({ background: sw.dataset.bg }); markBg();
+    });
+    markBg();
+
     // text/number fields save on change
     const bind = (id, key, parse) => view.querySelector("#" + id).addEventListener("change", (e) =>
       db.Settings.set({ [key]: parse ? parse(e.target.value) : e.target.value.trim() }));
@@ -128,6 +174,36 @@
       lon: +view.querySelector("#lon").value || -1.6244,
     }});
     ["locName", "lat", "lon"].forEach((id) => view.querySelector("#" + id).addEventListener("change", saveLoc));
+
+    // reminder category toggles + daily nudge time
+    view.querySelector("#reminderToggles").addEventListener("change", (e) => {
+      const cb = e.target.closest("[data-r]"); if (!cb) return;
+      db.Settings.set({ reminders: Object.assign({}, db.Settings.get().reminders, { [cb.dataset.r]: cb.checked }) });
+    });
+    view.querySelector("#dailyTime").addEventListener("change", (e) => {
+      db.Settings.set({ reminders: Object.assign({}, db.Settings.get().reminders, { dailyTime: e.target.value || "18:00" }) });
+    });
+
+    // AI (bring-your-own-key) config, stored under "aiConfig"
+    const aiCfg = () => Object.assign({ enabled: false, apiKey: "", model: "claude-opus-4-8", endpoint: "" }, Store.get("aiConfig", {}));
+    const saveAi = (patch) => Store.set("aiConfig", Object.assign(aiCfg(), patch));
+    (function initAi() {
+      const c = aiCfg();
+      view.querySelector("#aiKey").value = c.apiKey;
+      view.querySelector("#aiModel").value = c.model;
+      view.querySelector("#aiEndpoint").value = c.endpoint;
+      view.querySelector("#aiToggle").textContent = c.enabled ? "On" : "Off";
+    })();
+    view.querySelector("#aiToggle").addEventListener("click", (e) => {
+      e.preventDefault();
+      const on = !aiCfg().enabled;
+      saveAi({ enabled: on });
+      e.target.textContent = on ? "On" : "Off";
+      UI.toast(on ? "AI features on" : "AI features off", "info");
+    });
+    view.querySelector("#aiKey").addEventListener("change", (e) => saveAi({ apiKey: e.target.value.trim() }));
+    view.querySelector("#aiModel").addEventListener("change", (e) => saveAi({ model: e.target.value.trim() || "claude-opus-4-8" }));
+    view.querySelector("#aiEndpoint").addEventListener("change", (e) => saveAi({ endpoint: e.target.value.trim() }));
 
     // notifications toggle (also asks for browser permission)
     view.querySelector("#notifBtn").addEventListener("click", async (e) => {

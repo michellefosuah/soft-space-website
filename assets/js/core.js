@@ -301,6 +301,27 @@
     },
   };
 
+  /* ---------- PWA wiring ----------
+     Inject the manifest + theme-color and register the service worker so the
+     app is installable and works offline, without editing every page head.   */
+  (function pwa() {
+    if (!document.querySelector('link[rel="manifest"]')) {
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = "manifest.webmanifest";
+      document.head.appendChild(link);
+    }
+    if (!document.querySelector('meta[name="theme-color"]')) {
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = "#D8A7B1";
+      document.head.appendChild(meta);
+    }
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  })();
+
   // Public surface
   window.SS = Object.assign(window.SS || {}, {
     Store, FileDB, UI, fmt, Charts, uid, escapeHtml,

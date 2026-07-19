@@ -10,7 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <script>
-    (function () { try { if (!localStorage.getItem("ss:session")) { location.replace("auth.html"); return; } var b = JSON.parse(localStorage.getItem("ss:boot") || "{}"); var t = b.theme || "system"; if (t === "system") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; document.documentElement.setAttribute("data-theme", t); if (b.accent) document.documentElement.style.setProperty("--accent", b.accent); } catch (e) {} })();
+    (function () { try { if (!localStorage.getItem("ss:session")) { location.replace("auth.html"); return; } var b = JSON.parse(localStorage.getItem("ss:boot") || "{}"); var t = b.theme || "system"; if (t === "system") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; document.documentElement.setAttribute("data-theme", t); if (b.accent) document.documentElement.style.setProperty("--accent", b.accent); var g = t === "dark" ? b.gradDark : b.gradLight; if (g) document.documentElement.style.setProperty("--grad", g); } catch (e) {} })();
   </script>
 </head>
 <body>
@@ -20,6 +20,7 @@
   <script src="assets/js/ai.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/music.js"></script>
+  <script src="assets/js/reminders.js"></script>
   <script src="assets/js/layout.js"></script>
   <script src="assets/js/studyhub.js"></script>
 </body>

@@ -77,6 +77,16 @@
           <p id="journalPreview" style="line-height:1.5"></p>
         </div>
 
+        <div class="card">
+          <div class="between"><h3 style="margin:0">📅 Exam Countdown</h3><a class="chip" href="studyhub.html">Study</a></div>
+          <div id="examCountdown" class="stack" style="margin-top:10px"></div>
+        </div>
+
+        <div class="card">
+          <div class="between"><h3 style="margin:0">💰 Finance</h3><a class="chip" href="finance.html">Open</a></div>
+          <div id="financeSnapshot" style="margin-top:10px"></div>
+        </div>
+
         <div class="card span-2">
           <h3>🌱 Today's Progress</h3>
           <p id="progressText" class="muted" style="margin-bottom:10px"></p>
@@ -203,17 +213,58 @@
       }
     }
 
+    /* ---- exam countdown (next 3 upcoming) ---- */
+    function renderExams() {
+      const host = view.querySelector("#examCountdown");
+      const exams = db.Exams.upcoming().slice(0, 3);
+      if (!exams.length) {
+        host.innerHTML = `<p class="muted" style="font-size:14px">No exams scheduled. Add them in Study Hub.</p>`;
+        return;
+      }
+      host.innerHTML = exams.map((e) => {
+        const days = Math.max(0, Math.round((new Date(e.date) - new Date().setHours(0, 0, 0, 0)) / 86400000));
+        return `<div class="between">
+          <div><div class="item__title">${escapeHtml(e.subject)}</div>
+            <div class="item__meta">${fmt.shortDate(e.date)}</div></div>
+          <span class="chip" style="color:${days <= 3 ? "var(--danger)" : "var(--text-soft)"}">${days === 0 ? "Today" : days + "d"}</span>
+        </div>`;
+      }).join("");
+    }
+
+    /* ---- finance snapshot (this month) ---- */
+    function renderFinance() {
+      const host = view.querySelector("#financeSnapshot");
+      const month = db.Finance.inMonth();
+      const { income, expense, balance } = db.Finance.totals(month);
+      const budget = db.Budget.get();
+      const usedPct = budget.monthly ? Math.min(100, Math.round((expense / budget.monthly) * 100)) : 0;
+      host.innerHTML = `
+        <div class="stat__num" style="font-size:28px">${fmt.money(balance)}</div>
+        <div class="stat__label" style="text-align:left">Balance this month</div>
+        <div class="row" style="gap:16px;margin-top:10px">
+          <div><div class="muted" style="font-size:12px">In</div><strong style="color:var(--ok)">${fmt.money(income)}</strong></div>
+          <div><div class="muted" style="font-size:12px">Out</div><strong style="color:var(--danger)">${fmt.money(expense)}</strong></div>
+        </div>
+        ${budget.monthly ? `<div class="bar" style="margin-top:12px"><div class="fill" style="width:${usedPct}%"></div></div>
+          <div class="muted" style="font-size:12px;margin-top:6px">${usedPct}% of budget used</div>` : ""}`;
+    }
+
     // Re-render individual cards when their data changes (live sync).
     db.Tasks.on(() => { renderPlanner(); renderFocus(); renderProgress(); });
     db.Habits.on(() => { renderStreak(); renderProgress(); });
     Store.on("journal", renderJournal);
     db.Sessions.on(renderProgress);
+    db.Exams.on(renderExams);
+    db.Finance.on(renderFinance);
+    db.Budget.on(renderFinance);
 
     renderPlanner();
     renderFocus();
     renderStreak();
     renderJournal();
     renderProgress();
+    renderExams();
+    renderFinance();
     loadWeather();
   });
 

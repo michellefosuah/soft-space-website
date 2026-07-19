@@ -645,6 +645,11 @@
             <input id="qzCount" type="number" min="3" max="10" value="5" style="width:70px" title="Questions" />
             <button class="btn btn--primary" id="qzGen"><i class="ri-sparkling-line"></i> Generate</button>
           </div>
+          <div class="row" style="gap:8px;margin-bottom:6px">
+            <label class="muted" style="font-size:13px">From library</label>
+            <select id="qzResource" style="flex:1"></select>
+          </div>
+          <p class="muted" id="qzAiHint" style="font-size:12px;margin-bottom:8px"></p>
           <div id="qzArea"></div>
           <div id="qzHistory" style="margin-top:16px"></div>
         </div>
@@ -656,6 +661,10 @@
             <input id="fcSubject" placeholder="Subject" style="max-width:150px" />
             <button class="btn btn--primary btn--sm" id="fcGen"><i class="ri-sparkling-line"></i> Make cards</button>
           </div>
+          <div class="row" style="gap:8px;margin-bottom:8px">
+            <label class="muted" style="font-size:13px">From library</label>
+            <select id="fcResource" style="flex:1"></select>
+          </div>
           <textarea id="fcNotes" placeholder="Paste notes — lines like 'Term: definition' become cards." style="min-height:90px"></textarea>
           <div class="row" style="margin:12px 0">
             <div class="seg" id="fcFilter"><button data-f="all" class="on">All</button><button data-f="due">To review</button><button data-f="mastered">Mastered</button></div>
@@ -664,15 +673,45 @@
         </div>
       </section>`;
 
+    // Populate the library resource pickers (shared by quiz + flashcards).
+    function fillResourcePickers() {
+      const items = db.Library.all();
+      const opts = `<option value="">— none —</option>` +
+        items.map((i) => `<option value="${i.id}">${escapeHtml(i.title)} (${escapeHtml(i.subject)})</option>`).join("");
+      ["#qzResource", "#fcResource"].forEach((sel) => {
+        const el = panel.querySelector(sel);
+        const prev = el.value;
+        el.innerHTML = opts;
+        el.value = prev;
+      });
+      // Note whether AI is on (content-aware) or falling back to templates.
+      const aiOn = window.SS.db.Settings ? (SS.Store.get("aiConfig", {}) || {}).enabled : false;
+      panel.querySelector("#qzAiHint").textContent = aiOn
+        ? "AI is on — questions are generated from the selected file/topic."
+        : "Using offline templates. Turn on AI in Settings for content-aware questions.";
+    }
+    const resourceById = (id) => db.Library.all().find((i) => i.id === id) || null;
+    db.Library.on(fillResourcePickers);
+    fillResourcePickers();
+
     /* ---- Quiz ---- */
     panel.querySelector("#qzGen").addEventListener("click", async () => {
-      const title = panel.querySelector("#qzTitle").value.trim();
-      if (!title) { UI.toast("Enter a topic", "error"); return; }
-      const quiz = await AI.generateQuiz({
-        title, subject: panel.querySelector("#qzSubject").value.trim() || "General",
-        count: +panel.querySelector("#qzCount").value || 5,
-      });
-      renderQuizForm(quiz);
+      const resource = resourceById(panel.querySelector("#qzResource").value);
+      const title = panel.querySelector("#qzTitle").value.trim() || (resource && resource.title);
+      if (!title) { UI.toast("Enter a topic or pick a resource", "error"); return; }
+      const btn = panel.querySelector("#qzGen");
+      btn.disabled = true; btn.innerHTML = "Generating…";
+      try {
+        const quiz = await AI.generateQuiz({
+          title,
+          subject: panel.querySelector("#qzSubject").value.trim() || (resource && resource.subject) || "General",
+          description: resource ? resource.description : "",
+          count: +panel.querySelector("#qzCount").value || 5,
+          resource,
+        });
+        renderQuizForm(quiz);
+      } catch (e) { UI.toast("Couldn't generate quiz", "error"); }
+      btn.disabled = false; btn.innerHTML = `<i class="ri-sparkling-line"></i> Generate`;
     });
 
     function renderQuizForm(quiz) {
@@ -731,13 +770,21 @@
     panel.querySelector("#fcGen").addEventListener("click", async () => {
       const deck = panel.querySelector("#fcDeck").value.trim() || "Untitled deck";
       const notes = panel.querySelector("#fcNotes").value;
-      if (!notes.trim()) { UI.toast("Paste some notes first", "error"); return; }
-      const result = await AI.generateFlashcards({
-        deck, notes, subject: panel.querySelector("#fcSubject").value.trim() || "Other", count: 12,
-      });
-      result.cards.forEach((c) => db.Flashcards.add({ deck: result.deck, subject: result.subject, front: c.front, back: c.back }));
-      panel.querySelector("#fcNotes").value = "";
-      UI.toast(`${result.cards.length} cards created`, "success");
+      const resource = resourceById(panel.querySelector("#fcResource").value);
+      if (!notes.trim() && !resource) { UI.toast("Paste notes or pick a resource", "error"); return; }
+      const btn = panel.querySelector("#fcGen");
+      btn.disabled = true; btn.innerHTML = "Making…";
+      try {
+        const result = await AI.generateFlashcards({
+          deck, notes, resource,
+          subject: panel.querySelector("#fcSubject").value.trim() || (resource && resource.subject) || "Other",
+          count: 12,
+        });
+        result.cards.forEach((c) => db.Flashcards.add({ deck: result.deck, subject: result.subject, front: c.front, back: c.back }));
+        panel.querySelector("#fcNotes").value = "";
+        UI.toast(`${result.cards.length} cards created`, "success");
+      } catch (e) { UI.toast("Couldn't generate flashcards", "error"); }
+      btn.disabled = false; btn.innerHTML = `<i class="ri-sparkling-line"></i> Make cards`;
     });
 
     panel.querySelector("#fcFilter").addEventListener("click", (e) => {

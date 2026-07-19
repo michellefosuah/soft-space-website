@@ -154,5 +154,181 @@
     return { deck, subject, cards: cards.slice(0, count) };
   }
 
+  /* =========================================================
+     REAL PROVIDER · Anthropic Messages API (bring-your-own-key)
+     Enabled from Settings → AI. Because this is a static app with no
+     backend, the call goes straight from the browser to Anthropic using
+     the user's own key (or a custom proxy endpoint). Quizzes & flashcards
+     become content-aware: a PDF/image library resource is sent as a
+     document/image block so questions come from the actual file.
+     Only quiz + flashcards route here; the study plan stays local
+     (deterministic and offline). Any failure falls back to the heuristics.
+     ========================================================= */
+
+  const DEFAULT_MODEL = "claude-opus-4-8";
+
+  function aiConfig() {
+    return Object.assign(
+      { enabled: false, apiKey: "", model: DEFAULT_MODEL, endpoint: "" },
+      window.SS.Store ? window.SS.Store.get("aiConfig", {}) : {}
+    );
+  }
+
+  // base64 (no data: prefix) of a Blob, for document/image content blocks.
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result).split(",")[1] || "");
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  // Turn a library resource into a Claude content block (PDF or image only).
+  async function resourceBlock(resource) {
+    if (!resource || !resource.fileId || !window.SS.FileDB) return null;
+    let blob;
+    try { blob = await window.SS.FileDB.get(resource.fileId); } catch (_) { return null; }
+    if (!blob) return null;
+    const type = resource.fileType || blob.type || "";
+    const data = await blobToBase64(blob);
+    if (type.includes("pdf")) {
+      return { type: "document", source: { type: "base64", media_type: "application/pdf", data } };
+    }
+    if (type.includes("image")) {
+      return { type: "image", source: { type: "base64", media_type: type, data } };
+    }
+    return null; // DOCX/PPT aren't accepted as document blocks — metadata only
+  }
+
+  // One Messages API call. Returns parsed JSON when a schema is given.
+  async function callClaude({ system, content, schema, maxTokens = 4096 }) {
+    const cfg = aiConfig();
+    const endpoint = cfg.endpoint || "https://api.anthropic.com/v1/messages";
+    const headers = { "content-type": "application/json" };
+    if (cfg.endpoint) {
+      // Custom proxy: send the key as a bearer token (proxy adds the real key).
+      if (cfg.apiKey) headers["authorization"] = "Bearer " + cfg.apiKey;
+    } else {
+      headers["x-api-key"] = cfg.apiKey;
+      headers["anthropic-version"] = "2023-06-01";
+      headers["anthropic-dangerous-direct-browser-access"] = "true";
+    }
+    const body = {
+      model: cfg.model || DEFAULT_MODEL,
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content }],
+    };
+    if (system) body.system = system;
+    if (schema) body.output_config = { format: { type: "json_schema", schema } };
+
+    const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error("AI request failed (" + res.status + ")");
+    const data = await res.json();
+    const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+    return schema ? JSON.parse(text) : text;
+  }
+
+  const QUIZ_SCHEMA = {
+    type: "object", additionalProperties: false,
+    properties: {
+      questions: {
+        type: "array",
+        items: {
+          type: "object", additionalProperties: false,
+          properties: {
+            type: { type: "string", enum: ["mcq", "truefalse", "short"] },
+            q: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            answer: { type: "string" },
+          },
+          required: ["type", "q", "options", "answer"],
+        },
+      },
+    },
+    required: ["questions"],
+  };
+
+  const FLASHCARD_SCHEMA = {
+    type: "object", additionalProperties: false,
+    properties: {
+      cards: {
+        type: "array",
+        items: {
+          type: "object", additionalProperties: false,
+          properties: { front: { type: "string" }, back: { type: "string" } },
+          required: ["front", "back"],
+        },
+      },
+    },
+    required: ["cards"],
+  };
+
+  async function providerQuiz(p) {
+    const count = p.count || 5;
+    const content = [];
+    const block = await resourceBlock(p.resource);
+    if (block) content.push(block);
+    content.push({ type: "text", text:
+      `Create ${count} quiz questions about "${p.title || p.subject || "the topic"}"` +
+      (p.subject ? ` (subject: ${p.subject})` : "") + ".\n" +
+      (p.description ? `Context: ${p.description}\n` : "") +
+      (block ? "Base the questions on the attached document/image.\n" : "") +
+      `Mix multiple-choice, true/false, and short-answer. For MCQ give 4 options and set "answer" to the exact correct option text. For true/false set "answer" to "true" or "false". For short answer set "answer" to "".` });
+
+    const result = await callClaude({
+      system: "You are a precise study-quiz generator. Base questions only on the given material; keep them accurate and clear.",
+      content, schema: QUIZ_SCHEMA,
+    });
+
+    const questions = (result.questions || []).map((qq) => {
+      if (qq.type === "mcq") {
+        const options = qq.options && qq.options.length ? qq.options : ["A", "B", "C", "D"];
+        return { type: "mcq", q: qq.q, options, answer: Math.max(0, options.indexOf(qq.answer)) };
+      }
+      if (qq.type === "truefalse") return { type: "truefalse", q: qq.q, answer: String(qq.answer).toLowerCase() === "true" };
+      return { type: "short", q: qq.q, answer: "" };
+    });
+    return { title: p.title || p.subject || "Quiz", subject: p.subject || "General", description: p.description || "", questions };
+  }
+
+  async function providerFlashcards(p) {
+    const count = p.count || 10;
+    const content = [];
+    const block = await resourceBlock(p.resource);
+    if (block) content.push(block);
+    content.push({ type: "text", text:
+      `Create ${count} study flashcards for deck "${p.deck || "Notes"}"` +
+      (p.subject ? ` (subject ${p.subject})` : "") + ".\n" +
+      (p.notes ? `Notes:\n${p.notes}\n` : "") +
+      (block ? "Base the cards on the attached document/image.\n" : "") +
+      `Each card: "front" is a short prompt or term, "back" is a concise answer.` });
+
+    const result = await callClaude({
+      system: "You generate concise, accurate study flashcards from the given material.",
+      content, schema: FLASHCARD_SCHEMA,
+    });
+    return { deck: p.deck || "Notes", subject: p.subject || "Other", cards: (result.cards || []).slice(0, count) };
+  }
+
+  // Wire the provider based on saved settings. Called on load and after
+  // Settings changes. Study-plan stays local, so the provider throws for it
+  // and _run's catch falls back to the heuristic.
+  AI.configure = function () {
+    const cfg = aiConfig();
+    if (cfg.enabled && (cfg.apiKey || cfg.endpoint)) {
+      AI.provider = async ({ task, payload }) => {
+        if (task === "quiz") return providerQuiz(payload);
+        if (task === "flashcards") return providerFlashcards(payload);
+        throw new Error("local"); // study-plan -> heuristic fallback
+      };
+    } else {
+      AI.provider = null;
+    }
+  };
+
+  AI.configure();
+  if (window.SS.Store) window.SS.Store.on("aiConfig", () => AI.configure());
+
   window.SS.AI = AI;
 })();

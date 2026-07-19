@@ -224,12 +224,22 @@
     avatar: "🌸",
     theme: "system",        // light | dark | system
     accent: "#D8A7B1",
+    background: "aurora",   // id from Layout.BACKGROUNDS (the animated hero gradient)
     currency: "₵",
     focusMinutes: 25,
     breakMinutes: 5,
     longBreakMinutes: 15,
     notifications: true,
     location: { name: "Kumasi", lat: 6.6885, lon: -1.6244 },
+    // In-app reminders (checked while a Soft Space tab is open).
+    reminders: {
+      tasks: true,        // planner tasks due today / overdue
+      exams: true,        // exams at 7/3/1 days out and on the day
+      goals: true,        // goal deadlines within 3 days
+      timetable: true,    // class blocks as they start
+      habits: true,       // daily nudge if habits aren't all done
+      dailyTime: "18:00", // when the daily habit nudge may fire
+    },
   };
   const Settings = {
     get() { return Object.assign({}, DEFAULT_SETTINGS, Store.get("settings", {})); },
