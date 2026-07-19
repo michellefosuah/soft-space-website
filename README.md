@@ -73,17 +73,30 @@ assets/js/
 All state persists in the browser (localStorage for data, IndexedDB for files).
 Widgets subscribe to store changes, so the dashboard and every page stay in sync live.
 
-### Connecting a real AI later
+### AI features (bring your own key)
 
-The study planner, quiz generator, and flashcard maker all route through `SS.AI`.
-To use a real model, set one hook — no other code changes needed:
+Content-aware **quizzes and flashcards** can be generated from your uploaded
+study files. It's off by default — enable it in **Settings → AI** and paste your
+own Anthropic API key. When on, the Study Hub "Learn" tab lets you pick a library
+resource; a PDF or image is sent to Claude (`claude-opus-4-8`, via the Messages
+API with structured outputs) as a document/image block, so questions come from
+the actual file. With AI off — or on any failure — it falls back to built-in
+offline templates, so the app never breaks.
+
+> ⚠️ **Security:** because this is a static app with no backend, the request goes
+> **straight from your browser** to Anthropic using your own key (via the
+> `anthropic-dangerous-direct-browser-access` header). Your key is stored in the
+> browser and readable by anyone using that device — don't enable this on a shared
+> computer. To avoid exposing a raw key, set a **proxy endpoint** in Settings that
+> points at your own server which injects the key server-side.
+
+Everything routes through `SS.AI` (`assets/js/ai.js`). `SS.AI.configure()` reads
+the saved config and wires `SS.AI.provider`; the study planner stays local
+(deterministic, offline). To integrate differently, set `SS.AI.provider` yourself:
 
 ```js
 SS.AI.provider = async ({ task, payload }) => {
-  // task is "study-plan" | "quiz" | "flashcards"
-  const res = await fetch("/your-endpoint", { method: "POST", body: JSON.stringify({ task, payload }) });
-  return res.json(); // must match the shape the local fallback returns
+  // task is "quiz" | "flashcards" (study-plan stays local)
+  // return the same shape the local fallback returns
 };
 ```
-
-If `provider` is unset (or throws), Soft Space falls back to its built-in offline heuristics.

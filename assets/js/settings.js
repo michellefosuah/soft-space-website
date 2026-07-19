@@ -84,6 +84,21 @@
           </div>
         </div>
 
+        <div class="card span-2">
+          <h3>🤖 AI (bring your own key)</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:12px">Powers <strong>content-aware</strong> quizzes & flashcards generated from your uploaded study files. Off by default — the app works fully offline with built-in templates.</p>
+          <div class="between" style="margin-bottom:12px">
+            <div><strong>Enable AI features</strong><div class="muted" style="font-size:12px">Calls Claude from your browser</div></div>
+            <label class="seg"><button id="aiToggle">Off</button></label>
+          </div>
+          <div class="field" style="margin-bottom:12px"><label>Anthropic API key</label><input id="aiKey" type="password" placeholder="sk-ant-…" autocomplete="off" /></div>
+          <div class="form-row">
+            <div class="field"><label>Model</label><input id="aiModel" placeholder="claude-opus-4-8" /></div>
+            <div class="field"><label>Proxy endpoint (optional)</label><input id="aiEndpoint" placeholder="https://your-proxy…" /></div>
+          </div>
+          <p class="muted" style="font-size:11px;margin-top:12px;line-height:1.6">⚠️ Your key is stored in this browser and sent directly to Anthropic. Anyone who can use this device/browser can read it — don't enable this on a shared computer. To avoid exposing a raw key, point “Proxy endpoint” at your own server that injects the key instead.</p>
+        </div>
+
         <div class="card">
           <h3>🌤 Weather location</h3>
           <div class="field" style="margin-bottom:12px"><label>City name</label><input id="locName" value="${escapeHtml(s.location.name)}" /></div>
@@ -168,6 +183,27 @@
     view.querySelector("#dailyTime").addEventListener("change", (e) => {
       db.Settings.set({ reminders: Object.assign({}, db.Settings.get().reminders, { dailyTime: e.target.value || "18:00" }) });
     });
+
+    // AI (bring-your-own-key) config, stored under "aiConfig"
+    const aiCfg = () => Object.assign({ enabled: false, apiKey: "", model: "claude-opus-4-8", endpoint: "" }, Store.get("aiConfig", {}));
+    const saveAi = (patch) => Store.set("aiConfig", Object.assign(aiCfg(), patch));
+    (function initAi() {
+      const c = aiCfg();
+      view.querySelector("#aiKey").value = c.apiKey;
+      view.querySelector("#aiModel").value = c.model;
+      view.querySelector("#aiEndpoint").value = c.endpoint;
+      view.querySelector("#aiToggle").textContent = c.enabled ? "On" : "Off";
+    })();
+    view.querySelector("#aiToggle").addEventListener("click", (e) => {
+      e.preventDefault();
+      const on = !aiCfg().enabled;
+      saveAi({ enabled: on });
+      e.target.textContent = on ? "On" : "Off";
+      UI.toast(on ? "AI features on" : "AI features off", "info");
+    });
+    view.querySelector("#aiKey").addEventListener("change", (e) => saveAi({ apiKey: e.target.value.trim() }));
+    view.querySelector("#aiModel").addEventListener("change", (e) => saveAi({ model: e.target.value.trim() || "claude-opus-4-8" }));
+    view.querySelector("#aiEndpoint").addEventListener("change", (e) => saveAi({ endpoint: e.target.value.trim() }));
 
     // notifications toggle (also asks for browser permission)
     view.querySelector("#notifBtn").addEventListener("click", async (e) => {
